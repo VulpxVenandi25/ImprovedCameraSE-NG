@@ -29,6 +29,8 @@ namespace Patch {
 				k16659 = 4,  // GOG
 				k161130 = 5,
 				k161179 = 6, // GOG
+				k1799 = 7,
+				k17104 = 8,  // 1.7.104+
 
 				kNewer,
 
@@ -38,7 +40,9 @@ namespace Patch {
 
 	public:
 		SkyrimSE();
-		virtual ~SkyrimSE() = default;
+		// Out-of-line so std::unique_ptr<ImprovedCamera::ImprovedCameraSE>'s
+		// destructor is only instantiated where that type is complete.
+		virtual ~SkyrimSE();
 
 	public:
 		const std::string& FullName() const { return m_FullName; };
@@ -69,8 +73,8 @@ namespace Patch {
 		std::uintptr_t m_BaseAddress = NULL;
 		std::uintptr_t m_ImageSize = NULL;
 
-		std::unique_ptr<Patch::Hooks> m_Hooks = nullptr;
-		std::unique_ptr<ImprovedCamera::ImprovedCameraSE> m_Camera = nullptr;
+		std::unique_ptr<Patch::Hooks> m_Hooks;
+		std::unique_ptr<ImprovedCamera::ImprovedCameraSE> m_Camera;
 
 	private:
 		void OnLoad();

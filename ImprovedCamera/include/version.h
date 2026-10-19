@@ -6,7 +6,9 @@
 
 #pragma once
 
+#ifndef RC_INVOKED
 #pragma comment(lib, "Version.lib")
+#endif
 
 #define MAKE_STR_HELPER(a_str) #a_str
 #define MAKE_STR(a_str) MAKE_STR_HELPER(a_str)

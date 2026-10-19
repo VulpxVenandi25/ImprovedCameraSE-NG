@@ -599,12 +599,20 @@ namespace Patch {
 
 	void Hooks::Setup()
 	{
+		// Both sites sit inside their functions, and 1.7.x re-laid them out:
+		// TESObjectCell's virtual Get3D call moved 1 byte earlier, and the
+		// SmoothAnimationTransitions bool call moved 0xF bytes later. 1.7.99 and
+		// 1.7.104 share the new offsets; 1.5.97/1.6.x keep the old ones.
+		const bool is17x = DLLMain::Plugin::Get()->SkyrimSE()->Build() >= SkyrimSE::BuildInfo::k1799;
+		const std::size_t tesObjectCellAE = is17x ? 0x7A : 0x7B;
+		const std::size_t smoothAnimationAE = is17x ? 0x303 : 0x2F4;
+
 		Address::Hook::ProcessInput = REL::RelocationID(67315, 68617).address() + 0x7B;
 		Address::Hook::UpdateSwitchPOV = REL::RelocationID(39401, 40476).address() + REL::VariantOffset(0x2AF, 0x294, 0).offset();
 		Address::Hook::UpdateCamera = REL::RelocationID(49852, 50784).address() + 0x1A6;
 		Address::Hook::UpdateFirstPerson = REL::RelocationID(39446, 40522).address() + 0xD7;
-		Address::Hook::TESObjectCell_Get3D = REL::RelocationID(18683, 19165).address() + REL::VariantOffset(0x7C, 0x7B, 0).offset();
-		Address::Hook::SmoothAnimationTransitions = REL::RelocationID(40937, 41996).address() + REL::VariantOffset(0x2EA, 0x2F4, 0).offset();
+		Address::Hook::TESObjectCell_Get3D = REL::RelocationID(18683, 19165).address() + REL::VariantOffset(0x7C, tesObjectCellAE, 0).offset();
+		Address::Hook::SmoothAnimationTransitions = REL::RelocationID(40937, 41996).address() + REL::VariantOffset(0x2EA, smoothAnimationAE, 0).offset();
 		Address::Hook::ShaderReferenceEffect1 = REL::RelocationID(34111, 34913).address() + REL::VariantOffset(0xE1, 0xE1, 0).offset();
 		Address::Hook::ShaderReferenceEffect2 = REL::RelocationID(34111, 34913).address() + REL::VariantOffset(0x18A, 0x1F5, 0).offset();
 		Address::Hook::GetEffectNode_IsThirdPerson = REL::RelocationID(33361, 34142).address() + REL::VariantOffset(0x51, 0x51, 0).offset();

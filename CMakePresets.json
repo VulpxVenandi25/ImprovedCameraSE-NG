@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-clangcl",
+      "displayName": "Linux cross-compile (clang-cl + xwin + vcpkg)",
+      "description": "Cross-compiles ImprovedCameraSE.dll on a Linux host against the MSVC ABI using clang-cl/lld-link and an xwin Windows SDK/CRT sysroot.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-clangcl",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-clangcl",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets;${sourceDir}/ImprovedCamera/vendor/CommonLibSSE-NG/examples/linux-cross-compile/custom-triplets",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/ImprovedCamera/vendor/CommonLibSSE-NG/examples/linux-cross-compile/custom-ports",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-clangcl-static.cmake",
+        "BUILD_TESTS": "OFF",
+        "COMMONLIB_ENABLE_IPO": "OFF",
+        "SKSE_SUPPORT_XBYAK": "ON",
+        "ENABLE_SKYRIM_SE": "ON",
+        "ENABLE_SKYRIM_AE": "ON",
+        "ENABLE_SKYRIM_VR": "OFF",
+        "CMAKE_CXX_FLAGS": "-DWIN32_LEAN_AND_MEAN /EHsc /bigobj /utf-8 /permissive- -Wno-overloaded-virtual -Wno-delete-non-abstract-non-virtual-dtor -Wno-inconsistent-missing-override -Wno-reinterpret-base-class -Wno-nonportable-include-path -Wno-deprecated-copy-with-user-provided-copy -Wno-invalid-offsetof -Wno-switch -Wno-unused-command-line-argument -Wno-deprecated-volatile -Wno-unused-private-field -Wno-unknown-pragmas -Wno-microsoft-cast -Wno-microsoft-enum-value"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-clangcl",
+      "configurePreset": "linux-clangcl"
+    }
+  ]
+}

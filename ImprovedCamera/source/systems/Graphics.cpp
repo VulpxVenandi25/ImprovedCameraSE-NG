@@ -9,7 +9,7 @@
 
 #include "systems/Graphics.h"
 
-#include "Utils/PatternScan.h"
+#include "utils/PatternScan.h"
 #include "plugin.h"
 #include "utils/Log.h"
 #include "utils/Utils.h"
@@ -67,7 +67,10 @@ namespace Systems {
 				const auto renderer = RE::BSGraphics::Renderer::GetSingleton();
 				auto swapChain = renderer->GetRuntimeData().renderWindows[0].swapChain;
 
-				if (SUCCEEDED(swapChain->GetDevice(IID_PPV_ARGS(&pluginGraphics->m_Device))))
+				// REX::W32::IDXGISwapChain::GetDevice takes a REX::W32::GUID, which is a
+				// distinct type from the SDK _GUID that IID_PPV_ARGS yields.
+				const auto iid = *reinterpret_cast<const REX::W32::GUID*>(&__uuidof(ID3D11Device));
+				if (SUCCEEDED(swapChain->GetDevice(iid, IID_PPV_ARGS_Helper(&pluginGraphics->m_Device))))
 				{
 					pluginGraphics->m_Device->GetImmediateContext(&pluginGraphics->m_DeviceContext);
 					pluginGraphics->m_UI = UI::CreateMenu(pluginGraphics->m_OutputWindow);

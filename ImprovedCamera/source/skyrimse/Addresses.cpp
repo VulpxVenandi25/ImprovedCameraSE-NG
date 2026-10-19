@@ -25,9 +25,13 @@ namespace Address {
 			// Make sure arg1 and arg2 are not changed.
 			arg1 = nullptr; arg2 = 0;
 
-			using func_t = const std::int32_t(*)(void* arg1, std::int32_t arg2, RE::Actor* actor, bool rightHand);
+			// The hand selector must be a full, zero-extended integer. Passing a bool here lets
+			// the compiler forward an "anyext" value (upper 24 bits of the register are garbage),
+			// which the game treats as an invalid hand and takes the branch that dereferences
+			// the (intentionally null) arg1 above, crashing at SkyrimSE.exe+0xA00980.
+			using func_t = const std::int32_t(*)(void* arg1, std::int32_t arg2, RE::Actor* actor, std::int32_t rightHand);
 			REL::Relocation<func_t> func{ REL::RelocationID(53876, 54685) };
-			return func(arg1, arg2, actor, rightHand);
+			return func(arg1, arg2, actor, rightHand ? 1 : 0);
 		}
 
 		const bool Ragdoll_IsTaskPoolRequired()

@@ -120,10 +120,26 @@ namespace DLLMain {
 		Utils::GetVersionFromString(m_Config->ModuleData().sFileVersionMin, fileVersionMin);
 		Utils::GetVersionFromString(m_Config->ModuleData().sFileVersionMax, fileVersionMax);
 
-		if (m_SkyrimSE->VersionMajor() >= fileVersionMin[0] && m_SkyrimSE->VersionMajor() <= fileVersionMax[0] &&
-			m_SkyrimSE->VersionMinor() >= fileVersionMin[1] && m_SkyrimSE->VersionMinor() <= fileVersionMax[1] &&
-			m_SkyrimSE->VersionRevision() >= fileVersionMin[2] && m_SkyrimSE->VersionRevision() <= fileVersionMax[2] &&
-			m_SkyrimSE->VersionBuild() >= fileVersionMin[3] && m_SkyrimSE->VersionBuild() <= fileVersionMax[3])
+		// Compare the full version tuple lexicographically. Comparing each component
+		// independently breaks across minor bumps (e.g. 1.6.1170 vs a 1.7.104 upper bound,
+		// where the revision 1170 exceeds the max revision 104 even though 1.6.1170 < 1.7.104).
+		const std::uint32_t skyrimVersion[4]{
+			m_SkyrimSE->VersionMajor(),
+			m_SkyrimSE->VersionMinor(),
+			m_SkyrimSE->VersionRevision(),
+			m_SkyrimSE->VersionBuild()
+		};
+
+		auto compareVersion = [](const std::uint32_t a_lhs[4], const std::uint32_t a_rhs[4]) {
+			for (std::size_t i = 0; i < 4; ++i)
+			{
+				if (a_lhs[i] != a_rhs[i])
+					return a_lhs[i] < a_rhs[i] ? -1 : 1;
+			}
+			return 0;
+		};
+
+		if (compareVersion(skyrimVersion, fileVersionMin) >= 0 && compareVersion(skyrimVersion, fileVersionMax) <= 0)
 		{
 			LOG_TRACE("  Version:\t\t\t\tv{}.{}.{}.{}", m_SkyrimSE->VersionMajor(), m_SkyrimSE->VersionMinor(), m_SkyrimSE->VersionRevision(), m_SkyrimSE->VersionBuild());
 			LOG_TRACE("  Base Address:\t\t\t0x{:016X}", m_SkyrimSE->BaseAddress());

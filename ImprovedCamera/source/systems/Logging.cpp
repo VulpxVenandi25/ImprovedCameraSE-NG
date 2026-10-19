@@ -60,6 +60,12 @@ namespace Systems {
 			logger->flush_on(spdlog::level::trace);
 			spdlog::register_logger(logger);
 
+			// CommonLibSSE logs through spdlog's default logger. Point it at the plugin's own
+			// logger so library diagnostics (address library, trampoline, patch-site checks)
+			// land in this file instead of a second one -- and so SKSE::Init's own logger,
+			// which would open this very file a second time, stays out of the way.
+			spdlog::set_default_logger(logger);
+
 			logger->debug("{} v{}", VERSION_PRODUCTNAME_STR, VERSION_STR);
 			fileSink->set_pattern("[%d/%m/%C %H:%M:%S] %v");
 		}

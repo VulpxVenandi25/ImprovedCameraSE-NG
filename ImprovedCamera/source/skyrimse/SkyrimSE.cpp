@@ -17,6 +17,8 @@
 
 namespace Patch {
 
+	SkyrimSE::~SkyrimSE() = default;
+
 	SkyrimSE::SkyrimSE()
 	{
 		auto pluginConfig = DLLMain::Plugin::Get()->Config();
@@ -126,6 +128,12 @@ namespace Patch {
 
 		else if (m_VersionMajor == 1 && m_VersionMinor == 6 && m_VersionRevision >= 1130)
 			m_Build = BuildInfo::k161130;
+
+		else if (m_VersionMajor == 1 && m_VersionMinor == 7 && m_VersionRevision == 99)
+			m_Build = BuildInfo::k1799;
+
+		else if (m_VersionMajor == 1 && m_VersionMinor == 7 && m_VersionRevision >= 104)
+			m_Build = BuildInfo::k17104;
 
 		else
 			m_Build = BuildInfo::kInvalid;

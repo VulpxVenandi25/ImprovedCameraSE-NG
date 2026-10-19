@@ -11,6 +11,7 @@
 
 #include "plugin.h"
 #include "skyrimse/ImprovedCameraSE.h"
+#include "systems/CrashLog.h"
 #include "utils/Log.h"
 #include "version.h"
 
@@ -81,8 +82,8 @@ namespace SKSE {
 		pluginData.PluginName(VERSION_PRODUCTNAME_STR);
 		pluginData.PluginVersion(version);
 		pluginData.AuthorName(VERSION_AUTHOR_STR);
-		pluginData.UsesAddressLibrary(true);
-		pluginData.HasNoStructUse(true);
+		pluginData.UsesAddressLibrary();
+		pluginData.UsesNoStructs();
 
 		return pluginData;
 	}();
@@ -112,10 +113,19 @@ namespace SKSE {
 	{
 		auto plugin = DLLMain::Plugin::Get();
 		plugin->m_Logging.Initialize();
+		// The load order's CrashLogger does not load on this runtime, so report this
+		// plugin's own faults here instead of losing them silently.
+		Systems::CrashLog::Install();
 #if 0
 		DumpSpecificVersion();
 #endif
-		SKSE::Init(skse);
+		// Impl::API::InitTrampoline() is gated by std::call_once, so the first
+		// SKSE::AllocTrampoline() call wins and fixes the pool size for the whole session.
+		// stl::write_thunk_call() calls it with 14 bytes (one hook's stub), which left every
+		// later hook failing in do_allocate with "Failed to handle allocation request".
+		// Reserve the entire pool here instead; the per-hook calls then become no-ops.
+		static constexpr std::size_t trampolineSize = 0x1000;
+		SKSE::Init(skse, { .log = false, .trampoline = true, .trampolineSize = trampolineSize });
 		bool loaded = plugin->Load();
 
 		if (loaded)

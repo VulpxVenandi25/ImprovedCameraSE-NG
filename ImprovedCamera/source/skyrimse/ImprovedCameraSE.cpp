@@ -41,7 +41,7 @@ namespace ImprovedCamera {
 		{
 			if (const auto charEvent = event->AsCharEvent())
 			{
-				pluginGraphics->m_UI.get()->AddCharacterEvent(charEvent->keycode);
+				pluginGraphics->m_UI.get()->AddCharacterEvent(charEvent->keyCode);
 			}
 			else if (const auto buttonEvent = event->AsButtonEvent())
 			{
@@ -1045,7 +1045,7 @@ namespace ImprovedCamera {
 			return;
 
 		RE::BSVisit::TraverseScenegraphGeometries(thirdperson3D, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl {
-			const auto& effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto& effect = a_geometry->GetGeometryRuntimeData().shaderProperty;
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 
 			if (lightingShader)
